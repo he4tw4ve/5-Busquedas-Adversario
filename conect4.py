@@ -163,48 +163,90 @@ def ordena_centro(jugadas, jugador):
     """
     Ordena las jugadas de acuerdo a la distancia al centro
     """
+    # como primer modificación cambié abs(x - 4) por
+    # abs(x - 3) porque el indice de la columna del centro es 
+    # 3, no 4.
     return sorted(jugadas, key=lambda x: abs(x - 4))
 
-def evalua_3con(s):
+def evalua_3_2con(s):
     """
     Evalua el estado s para el jugador 1
     """
+    # son los mismos ciclos que la funcion de ganancia, solo que para
+    # 3 fichas en vez de 4
     conect3 = sum(
-        1 for i in range(7) for j in range(4) 
-        if (s[i + 7 * j] == s[i + 7 * (j + 1)] 
+        1 for i in range(7) for j in range(4)    # grupos de 3 verticales del jugador 1
+        if (s[i + 7 * j] == s[i + 7 * (j + 1)]   # i son columnas, j son filas
             == s[i + 7 * (j + 2)] == 1)
     ) - sum(
-        1 for i in range(7) for j in range(4) 
-        if (s[i + 7 * j] == s[i + 7 * (j + 1)] 
+        1 for i in range(7) for j in range(4)    # grupos de 3 verticales
+        if (s[i + 7 * j] == s[i + 7 * (j + 1)]   # del jugador -1
             == s[i + 7 * (j + 2)] == -1)
     ) + sum(
-        1 for i in range(6) for j in range(5) 
-        if (s[7 * i + j] == s[7 * i + j + 1] 
+        1 for i in range(6) for j in range(5)    # grupos de 3 horizontales del 
+        if (s[7 * i + j] == s[7 * i + j + 1]     # jugador 1
             == s[7 * i + j + 2] == 1)
     ) - sum(
-        1 for i in range(6) for j in range(5) 
-        if (s[7 * i + j] == s[7 * i + j + 1] 
+        1 for i in range(6) for j in range(5)    # grupos de 3 horizontales del 
+        if (s[7 * i + j] == s[7 * i + j + 1]     # jugador -1
             == s[7 * i + j + 2] == -1)
     ) + sum(
-        1 for i in range(5) for j in range(4) 
-        if (s[i + 7 * j] == s[i + 7 * j + 8] 
+        1 for i in range(5) for j in range(4)    # lo mismo para la diagonal ↘
+        if (s[i + 7 * j] == s[i + 7 * j + 8]     # j es fila i es columna
             == s[i + 7 * j + 16] == 1)
     ) - sum(
         1 for i in range(5) for j in range(4) 
         if (s[i + 7 * j] == s[i + 7 * j + 8] 
             == s[i + 7 * j + 16] == -1)
     ) + sum(
-        1 for i in range(5) for j in range(4) 
-        if (s[i + 7 * j + 3] == s[i + 7 * j + 9] 
+        1 for i in range(5) for j in range(4)    # diagonal ↙
+        if (s[i + 7 * j + 3] == s[i + 7 * j + 9] # j es fila i es columna
             == s[i + 7 * j + 15] == 1)
     ) - sum(
         1 for i in range(5) for j in range(4) 
         if (s[i + 7 * j + 3] == s[i + 7 * j + 9] 
             == s[i + 7 * j + 15] == -1)
     )
-    promedio = conect3 / (7 * 4 + 6 * 5 + 5 * 4 + 5 * 4)
+
+    conect2 = sum(
+        1 for columna in range(7) for fila in range(5)                 # conexiones de 2 para el jugador 1, verticales
+        if (s[columna + 7 * fila] == s[columna + 7 * (fila + 1)] == 1)
+    ) - sum(
+        1 for columna in range(7) for fila in range(5)                 # conexiones de 2 para el jugador -1, verticales
+        if (s[columna + 7 * fila] == s[columna + 7 * (fila + 1)] == -1)
+    ) + sum(
+        1 for fila in range(6) for columna in range(6)                 # conexiones de 2 para el jugador 1, horizontales
+        if (s[fila * 7 + columna] == s[fila * 7 + (columna + 1)] == 1)
+    ) - sum(
+        1 for fila in range(6) for columna in range(6)                 # conexiones de 2 para el jugador -1, horizontales
+        if (s[fila * 7 + columna] == s[fila * 7 + (columna + 1)] == -1)
+    ) + sum(
+        1 for columna in range(6) for fila in range(5)                 # conexiones en la diagonal ↘ de 2 para el jugador 1
+        if (s[columna + 7 * fila] == s[columna + 7 * fila + 8] == 1)
+    ) - sum(
+        1 for columna in range(6) for fila in range(5)                 # conexiones en la diagonal↘ de 2 para el jugador -1 
+        if (s[columna + 7 * fila] == s[columna + 7 * fila + 8] == -1)
+    ) + sum(
+        1 for columna in range(6) for fila in range(5)                 # conexiones en la diagonal ↙ de 2 para el jugador 1
+        if (s[columna + 7 * fila + 3] == s[columna + 7 * fila + 9] == 1)
+    ) - sum(
+        1 for columna in range(6) for fila in range(5)                 # conexiones en la diagonal ↙ de 2 para el jugador -1
+        if (s[columna + 7 * fila + 3] == s[columna + 7 * fila + 9] == -1)
+    )
+
+    conect3 *= 10
+    conect2 *= 5
+    puntaje = conect3 + conect2
+
+    total_grupos_3 = (7*4 + 6*5 + 5*4 + 5*4) * 10
+    total_grupos_2 = (7*5 + 6*6 + 6*5 + 6*5) * 5
+    maximo_grupos = total_grupos_2 + total_grupos_3
+
+    promedio = puntaje / maximo_grupos
+
     if abs(promedio) >= 1:
         raise ValueError("Evaluación fuera de rango --> ", promedio)
+
     return promedio
 
 if __name__ == '__main__':
@@ -215,7 +257,7 @@ if __name__ == '__main__':
         "profundidad máxima": 5,
         "tiempo": 10,
         "ordena": ordena_centro,    #Puede ser None o una función f(jugadas, j) -> lista de jugadas ordenada
-        "evalua": evalua_3con       #Puede ser None o una función f(estado) -> número entre -1 y 1
+        "evalua": evalua_3_2con       #Puede ser None o una función f(estado) -> número entre -1 y 1
     }
 
     def jugador_cfg(cadena):
