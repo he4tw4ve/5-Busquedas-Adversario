@@ -159,6 +159,25 @@ class InterfaceConecta4(js.JuegoInterface):
             jugada = int(input("Jugada: "))
         return jugada
 
+# def ordena_jugadas(jugadas, s):
+#    """
+#    ordena las jugadas posibles para explorar en base a su distancia
+#    al centro y si hay fichas adyacentes
+#    """
+#
+#    def puntaje_columna(columna):
+#        centro = abs(columna - 3)
+#
+#        adyacentes = sum(
+#            1 for c in [columna - 1, columna + 1]
+#            if 0 <= c <= 6
+#            for fila in range(6)
+#            if s[c + 7 * fila] != 0
+#        )
+#        return centro - adyacentes
+#    
+#    return sorted(jugadas, key = puntaje_columna)
+
 def ordena_centro(jugadas, jugador):
     """
     Ordena las jugadas de acuerdo a la distancia al centro
@@ -166,7 +185,7 @@ def ordena_centro(jugadas, jugador):
     # como primer modificación cambié abs(x - 4) por
     # abs(x - 3) porque el indice de la columna del centro es 
     # 3, no 4.
-    return sorted(jugadas, key=lambda x: abs(x - 4))
+    return sorted(jugadas, key=lambda x: abs(x - 3))
 
 def evalua_3_2con(s):
     """
@@ -227,11 +246,11 @@ def evalua_3_2con(s):
         1 for columna in range(6) for fila in range(5)                 # conexiones en la diagonal↘ de 2 para el jugador -1 
         if (s[columna + 7 * fila] == s[columna + 7 * fila + 8] == -1)
     ) + sum(
-        1 for columna in range(6) for fila in range(5)                 # conexiones en la diagonal ↙ de 2 para el jugador 1
-        if (s[columna + 7 * fila + 3] == s[columna + 7 * fila + 9] == 1)
+        1 for columna in range(1, 7) for fila in range(5)              # conexiones en la diagonal ↙ de 2 para el jugador 1
+        if (s[columna + 7 * fila] == s[columna + 7 * fila + 6] == 1)
     ) - sum(
-        1 for columna in range(6) for fila in range(5)                 # conexiones en la diagonal ↙ de 2 para el jugador -1
-        if (s[columna + 7 * fila + 3] == s[columna + 7 * fila + 9] == -1)
+        1 for columna in range(1, 7) for fila in range(5)              # conexiones en la diagonal ↙ de 2 para el jugador -1
+        if (s[columna + 7 * fila] == s[columna + 7 * fila + 6] == -1)
     )
 
     conect3 *= 10
@@ -253,8 +272,8 @@ if __name__ == '__main__':
 
     cfg = {
         "Jugador 1": "Humano",      #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
-        "Jugador 2": "Aleatorio",   #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
-        "profundidad máxima": 5,
+        "Jugador 2": "Negamax",   #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
+        "profundidad máxima": 8,
         "tiempo": 10,
         "ordena": ordena_centro,    #Puede ser None o una función f(jugadas, j) -> lista de jugadas ordenada
         "evalua": evalua_3_2con       #Puede ser None o una función f(estado) -> número entre -1 y 1
