@@ -125,14 +125,72 @@ class UltimateTicTacToe(js.JuegoZT2):
 # clase de la interfaz
 
 class InterfaceUltimateTicTacToe(js.JuegoInterface):
+
     def muestra_estado(self, s):
-        raise NotImplementedError
+        """
+        Muestra el estado del juego
+        """
+        a = ['   X   ' if x == 1 else '   O   ' if x == -1 
+             else str(i).center(7) for (i, x) in enumerate(s)]
+        
+        # capa de arriba
+        print('\n' + '╔═══════╦═══════╦═══════╗ ')
+        print('\n' + '║' + a[0] + '║' + a[1] + '║' + a[2] + '║')
+        print('\n' + '╠═══════╬═══════╬═══════╣')
+        print('\n' + '║' + a[3] + '║' + a[4] + '║' + a[5] + '║')
+        print('\n' + '╠═══════╬═══════╬═══════╣')
+        print('\n' + '║' + a[6] + '║' + a[7] + '║' + a[8] + '║')
+        print('\n' + '╚═══════╩═══════╩═══════╝\n')
+
+        # capa de en medio
+        print('\n' + '╔═══════╦═══════╦═══════╗ ')
+        print('\n' + '║' + a[9] + '║' + a[10] + '║' + a[11] + '║')
+        print('\n' + '╠═══════╬═══════╬═══════╣')
+        print('\n' + '║' + a[12] + '║' + a[13] + '║' + a[14] + '║')
+        print('\n' + '╠═══════╬═══════╬═══════╣')
+        print('\n' + '║' + a[15] + '║' + a[16] + '║' + a[17] + '║')
+        print('\n' + '╚═══════╩═══════╩═══════╝\n')
+
+        # capa de abajo
+        print('\n' + '╔═══════╦═══════╦═══════╗ ')
+        print('\n' + '║' + a[18] + '║' + a[19] + '║' + a[20] + '║')
+        print('\n' + '╠═══════╬═══════╬═══════╣')
+        print('\n' + '║' + a[21] + '║' + a[22] + '║' + a[23] + '║')
+        print('\n' + '╠═══════╬═══════╬═══════╣')
+        print('\n' + '║' + a[24] + '║' + a[25] + '║' + a[26] + '║')
+        print('\n' + '╚═══════╩═══════╩═══════╝\n')
     
-    def muestra_ganador(self, g):
-        raise NotImplementedError
-    
+    def muestra_ganador(self, ganancia):
+        """
+        Muestra el ganador cuando se acaba el juego
+        """
+        if ganancia == 0:
+            print('\nEmpate!')
+        elif ganancia == 1:
+            print('\nGana el jugador X!')
+        elif ganancia == -1: 
+            print('\nGana el jugador O!')
+        else: 
+            raise ValueError(f"Valor de ganancia inesperado: {ganancia!r}")
+            
     def jugador_humano(self, s, j):
-        raise NotImplementedError
+        """
+        Pide jugada al jugador humano
+        """
+        jugada = None
+
+        if j == 1:
+            print('Turno de X')
+        elif j == -1:
+            print('Turno de O')
+        else:
+            raise ValueError(f"Valor de j inesperado: {j!r}")
+        
+        legales = self.juego.jugadas_legales(s, j)
+        while jugada not in legales:
+            jugada = int(input('Escribe tu jugada: '))
+
+        return jugada
 
 # Ordenamiento y evaluacion
 
@@ -148,11 +206,11 @@ if __name__ == '__main__':
 
     cfg = {
         "Jugador 1": "Humano",      #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
-        "Jugador 2": "Negamax",   #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
+        "Jugador 2": "Humano",   #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
         "profundidad máxima": 8,
         "tiempo": 10,
-        "ordena": ordena_jugadas,    #Puede ser None o una función f(jugadas, j) -> lista de jugadas ordenada
-        "evalua": evalua_estado       #Puede ser None o una función f(estado) -> número entre -1 y 1
+        "ordena": None,    #Puede ser None o una función f(jugadas, j) -> lista de jugadas ordenada
+        "evalua": None       #Puede ser None o una función f(estado) -> número entre -1 y 1
     }
 
     def jugador_cfg(cadena):
@@ -176,3 +234,5 @@ if __name__ == '__main__':
         jugador1=jugador_cfg(cfg["Jugador 1"]),
         jugador2=jugador_cfg(cfg["Jugador 2"])
     )
+
+    interfaz.juega()
