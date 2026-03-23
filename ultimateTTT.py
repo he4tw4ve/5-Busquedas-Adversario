@@ -194,23 +194,45 @@ class InterfaceUltimateTicTacToe(js.JuegoInterface):
 
 # Ordenamiento y evaluacion
 
-def ordena_jugadas(jugadas, jugador):
-    raise NotImplementedError
+def ordena_jugadas(jugadas, jugador, lineas):
+    def puntaje(casilla):
+        return sum(casilla in linea for linea in lineas)
+    
+    return sorted(jugadas, key = puntaje, reverse = True)
 
-def evalua_estado(s):
-    raise NotImplementedError
+def evalua_estado(s, lineas):
+    conexionesX = 0
+    conexionesO = 0
+    
+    for linea in lineas:
+        a, b, c = linea
+        vals = [s[a], s[b], s[c]]
+        xs = vals.count(1)
+        os = vals.count(-1)
+        vacias = vals.count(0)
+
+        if xs == 2 and vacias == 1:
+            conexionesX += 1
+        if os == 2 and vacias == 1:
+            conexionesO += 1
+
+    evaluacion = (conexionesX - conexionesO) / 49
+    return evaluacion
+
 
 # main
 
 if __name__ == '__main__':
+    juego = UltimateTicTacToe()
+    juego.inicializa()
 
     cfg = {
         "Jugador 1": "Humano",      #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
-        "Jugador 2": "Humano",   #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
-        "profundidad máxima": 8,
+        "Jugador 2": "Negamax",   #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
+        "profundidad máxima": 5,
         "tiempo": 10,
-        "ordena": None,    #Puede ser None o una función f(jugadas, j) -> lista de jugadas ordenada
-        "evalua": None       #Puede ser None o una función f(estado) -> número entre -1 y 1
+        "ordena": lambda jugadas, j: ordena_jugadas(jugadas, j, juego.lineas),    #Puede ser None o una función f(jugadas, j) -> lista de jugadas ordenada
+        "evalua": lambda s: evalua_estado(s, juego.lineas)       #Puede ser None o una función f(estado) -> número entre -1 y 1
     }
 
     def jugador_cfg(cadena):
@@ -236,3 +258,7 @@ if __name__ == '__main__':
     )
 
     interfaz.juega()
+
+    # para q no se me olviden
+    # "ordena": lambda jugadas, j: ordena_jugadas(jugadas, j, juego.lineas)
+    # "evalua": lambda s: evalua_estado(s, juego.lineas)
