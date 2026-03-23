@@ -75,7 +75,7 @@ class UltimateTicTacToe(js.JuegoZT2):
         lineas.append([6,12,18]) # diagonales en las caras de afuera [0,12,24] etc.
         lineas.append([0,10,20])
         lineas.append([2,10,18])
-        lineas.append([2,14,24])
+        lineas.append([2,14,26])
         lineas.append([8,14,20])
         lineas.append([6,16,26])
         lineas.append([8,16,24])
@@ -228,7 +228,7 @@ if __name__ == '__main__':
 
     cfg = {
         "Jugador 1": "Humano",      #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
-        "Jugador 2": "Negamax",   #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
+        "Jugador 2": "Humano",   #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
         "profundidad máxima": 5,
         "tiempo": 10,
         "ordena": lambda jugadas, j: ordena_jugadas(jugadas, j, juego.lineas),    #Puede ser None o una función f(jugadas, j) -> lista de jugadas ordenada
