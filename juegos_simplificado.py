@@ -61,7 +61,7 @@ class JuegoInterface:
         self.juego = juego
         self.jugador = [None, jugador1, jugador2]
     
-    def muestra_estado(self, s):
+    def muestra_estado(self, s, j=None):
         """
         Muestra el estado del juego
         
@@ -100,13 +100,13 @@ class JuegoInterface:
         
         """
         s = self.juego.inicializa()
-        self.muestra_estado(s)
+        self.muestra_estado(s, 1)
         j = 1
         pasos = 0
         while not self.juego.terminal(s) and pasos < max_pasos:
             a = self.pide_jugada(self.jugador[j], s, j)
             s = self.juego.sucesor(s, a, j)
-            self.muestra_estado(s)
+            self.muestra_estado(s, -j)
             j = -j
             pasos += 1
         self.muestra_ganador(self.juego.ganancia(s))
