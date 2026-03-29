@@ -2,6 +2,8 @@ import juegos_simplificado as js
 import minimax
 
 """
+Hice el otello porque me equivoque en el juego del gato.
+
 El estado es una tupla de 64 enteros
 
 Los jugadores son 
@@ -24,19 +26,43 @@ Vacio = 0
 
 # helpers 
 
+DIRECCIONES = [
+    (-1, -1), (-1, 0), (-1, 1),
+    (0, -1), (0, 1),
+    (1, -1), (1, 0), (1, 1)
+]
+
 def fichas_a_voltear(s, fila, col, j, direccion):
     """
     En una dirección dada, devuelve lista de índices de fichas enemigas
     que quedarían sandwicheadas. Lista vacía si no hay ninguna.
     """
-    raise NotImplementedError
+    df, dc = direccion
+    enemigas = []
+    f, c = fila + df, col + dc
+
+    while 0 <= f < 8 and 0 <= c < 8:
+        casilla = s[indice(f, c)]
+        if casilla == -j:           
+            enemigas.append(indice(f, c))
+            f += df
+            c += dc
+        elif casilla == j:         
+            return enemigas
+        else:                       
+            return []
+
+    return []  
 
 def voltear_fichas(lst, a, j):
     """
     Voltea todas las fichas que correspondan tras colocar en índice a.
     Modifica lst in-place.
     """
-    raise NotImplementedError
+    fila, col = coords(a)
+    for d in DIRECCIONES:
+        for idx_voltear in fichas_a_voltear(lst, fila, col, j, d):
+            lst[idx_voltear] = j
 
 def legal(s, fila, col, j):
     """
@@ -44,19 +70,22 @@ def legal(s, fila, col, j):
     1. La casilla está vacía (ya se verifica antes de llamar esta función)
     2. Al menos una dirección produce un sandwich de fichas enemigas
     """
-    raise NotImplementedError
+    return any(
+        fichas_a_voltear(s, fila, col, j, d)
+        for d in DIRECCIONES
+    )
 
 def indice(fila, columna):
     """
     Convierte coordenadas a un indice plano.
     """
-    raise NotImplementedError
+    return fila * 8 + columna
 
 def coords(indice):
     """
     Convierte un indice plano a una tupla de coordenadas.
     """      
-    raise NotImplementedError
+    return divmod(indice, 8)
     
 
 # clase del juego
@@ -140,25 +169,68 @@ class InterfaceOthello(js.JuegoInterface):
         """
         Muestra el estado del juego
         """
-        raise NotImplementedError
+        turno = "Negro" if j == 1 else "Blanco"
+        print(f"Turno del jugador {turno}")
+        print("\n    0   1   2   3   4   5   6   7")
+        print("  +---+---+---+---+---+---+---+---+")
+
+        for f in range(8):
+            row_content = f"{f} |"
+            for c in range(8):
+                val = s[indice(f, c)]
+                row_content += " N |" if val == 1 else " B |" if val == -1 else "   |"
+            print(row_content)
+            print("  +---+---+---+---+---+---+---+---+")
+
+        print()
     
     def muestra_ganador(self, ganancia):
         """
         Muestra el ganador cuando se acaba el juego
         """
-        raise NotImplementedError
+        if ganancia == 1:
+            print("¡Gana el jugador Negro!")
+        elif ganancia == -1:
+            print("¡Gana el jugador Blanco!")
+        else:
+            print("¡Empate!")
             
     def jugador_humano(self, s, j):
         """
         Pide jugada al jugador humano
         """
-        raise NotImplementedError
+        jugadas_legales = self.juego.jugadas_legales(s, j)
+
+        if jugadas_legales == [None]:
+            print("No tienes jugadas legales, debes pasar.")
+            return None
+
+        print("Jugadas legales:")
+        print(", ".join(f"({coords(a)[0]},{coords(a)[1]})" for a in jugadas_legales))
+
+        while True:
+            try:
+                fila = int(input("Ingresa fila (0-7): "))
+                col = int(input("Ingresa columna (0-7): "))
+                if 0 <= fila < 8 and 0 <= col < 8:
+                    a = indice(fila, col)
+                    if a in jugadas_legales:
+                        return a
+                    else:
+                        print("Jugada ilegal. Intenta de nuevo.")
+                else:
+                    print("Coordenadas fuera de rango. Intenta de nuevo.")
+            except ValueError:
+                print("Entrada inválida. Ingresa números.")
             
     def pide_jugada(self, jugador, s, j):
         """
         Pide al jugador escoger la jugada a realizar, entre las acciones posibles
         """
-        raise NotImplementedError
+        if isinstance(jugador, js.Jugador):
+            return jugador.jugada(self.juego, s, j)
+        else:
+            return self.jugador_humano(s, j)
 
 # Ordenamiento y evaluacion
 
@@ -166,13 +238,20 @@ def ordena_jugadas(jugadas, jugador):
     """
     Ordena las jugadas por proximidad al centro del tablero.
     """
-    raise NotImplementedError
+    def distancia_centro(a):
+        if a is None:
+            return float('inf')
+        f, c = coords(a)
+        return (f - 3.5)**2 + (c - 3.5)**2
+    return sorted(jugadas, key=distancia_centro)
 
 def evalua_estado(s):
     """
     Evalúa el estado: (fichas negro - fichas blanco) / 64
     """
-    raise NotImplementedError
+    negro = sum(1 for x in s if x == 1)
+    blanco = sum(1 for x in s if x == -1)
+    return (negro - blanco) / 64
 
 # main
 
@@ -180,7 +259,7 @@ if __name__ == '__main__':
 
     cfg = {
         "Jugador 1": "Humano",      #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
-        "Jugador 2": "Humano",   #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
+        "Jugador 2": "Negamax",   #Puede ser "Humano", "Aleatorio", "Negamax", "Tiempo"
         "profundidad máxima": 5,
         "tiempo": 10,
         "ordena": ordena_jugadas,    #Puede ser None o una función f(jugadas, j) -> lista de jugadas ordenada
